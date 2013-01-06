@@ -4,12 +4,9 @@ MIT License. made in 2011.
 
 uses jQuery 1.3.2
 
-chrome extension for twitter. displays a message telling you if an account
-follows you. works also when visualizing profiles on the timeline.
+Tells you if someone follows you on twitter.
 
-
-!!! this extension is deprecated for now the layout has been updated and
-shows a 'FOLLOWS YOU' box when the user profile is visualized by a follower.
+!!! This extension is no longer working, since the change in layout of mid 2011.
 
 chrome web store page:
-https://chrome.google.com/webstore/detail/hgppmhiicafodcmhllmennhildnhlebg
+https://chrome.google.com/webstore/detail/hgppmhoiicafodcmhllmennhildnhlebg
