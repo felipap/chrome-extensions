@@ -1,4 +1,4 @@
-Chrome Extension that creates a catalog of words searched on the http://wordreference.com.
+Chrome Extension that creates a catalog of words searched on the website http://wordreference.com.
 
 TODOs:
 ------
