@@ -1,0 +1,10 @@
+
+*/.git
+*.psd
+*/screenshots/*
+bookmarks
+
+*~
+*.out
+*.swp
+*.lock

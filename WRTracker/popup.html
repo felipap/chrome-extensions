@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+<style>
+
+body {
+	width: 435px;
+	overflow-y: scroll;
+	font: 13px Helvetica, Arial, sans-serif;
+
+	padding: 0;
+	margin: 0;
+}
+
+ul#words {
+	max-height: 400px;
+	overflow-y: auto;
+	list-style: none;
+	margin: 0;
+	padding: 5px 15px;
+}
+
+ul#words .field#accesses-field {
+	font-size: 11px;
+	font-weight: bold;
+	color: white;
+	background: #aaa;
+	border-radius: 8px;
+	padding: 2px 7px;
+	margin: 0 10px 0 5px;
+}
+
+ul#words li {
+	display: block;
+	position: relative;
+
+	margin: 10px 0;
+	padding: 5px;
+	clear: left;
+	background: none;
+	cursor: pointer;
+
+	color: #333;
+
+	border: 1px solid #aaa;
+	-webkit-transition: all 100ms linear;
+}
+
+ul#words li:hover .icon-remove { display: block; opacity: .6; }
+ul#words li:hover .icon-remove:hover { opacity: 1; }
+ul#words li .icon-remove {
+	display: block;
+	position: absolute;
+	right: 6px; top: 6px;
+	opacity: .2;
+
+	-webkit-transition: all 100ms linear;
+}
+
+
+ul#words li:hover:not(.actual) {
+	color: black;
+	box-shadow: 0 0 2px black;
+}
+
+ul#words li:hover #word-field {
+}
+
+ul#words li .field#last-access-field {
+	position: absolute;
+	right: 30px;
+}
+
+ul#words li.actual {
+	border-color: #08C;
+	outline: 1px solid #08C; #FFB800;
+}
+
+/*************************************/
+
+#orderby {
+	border: 0;
+	background: #08C;
+	padding: 10px;
+	color: white;
+}
+
+#orderby span { vertical-align: stop; }
+#orderby button {
+	background: none;
+	border: none;
+	cursor: pointer;
+	outline: none;
+	font-weight: bolder;
+
+	color: white;
+}
+
+#orderby button:hover {
+	background: white;
+	color: #08C;
+}
+
+#orderby button.selected {
+	background: white;
+	color: #08C;
+}
+
+
+/*************************************/
+
+.about {
+	text-transform: uppercase;
+	font-size: 9px;
+	padding: 5px;
+	color: white;
+	text-align: center;
+	cursor: default;
+	background: #ddd;
+	font-weight: bold;
+	-webkit-transition: all 100ms linear;
+}
+
+.about:hover {
+	background: #888;
+}
+
+.about a {
+	text-decoration: none;
+	color: white;
+	outline: none;
+}
+
+.about a:hover {
+	text-decoration: underline;
+}
+
+</style>
+
+</head>
+<body>
+
+
+	<div id="orderby">
+		<span>order by:</span>
+			<button data-select="accesses" onClick="javascript:create_list('accesses')">accesses</button>
+			<button data-select="word" onClick="javascript:create_list('word')">alphabetically</button>
+			<button data-select="time_added" onClick="javascript:create_list('time_added')">first access</button>
+			<button data-select="last_access" onClick="javascript:create_list('last_access')">last access</button>
+	</div>
+
+	<div class="about">
+		developed by <a href="javascript:_open_url('http://github.com/f03lipe')">@f03lipe</a>
+	</div>
+
+<script>
+
+function _open_url ( url ) {
+	chrome.tabs.create({url: url})
+}
+
+function open_word_url ( li_obj ) {
+	_open_url(li_obj.getAttribute('data-url'))
+}
+
+function remove_word ( event ) {
+
+	event.stopPropagation() // prevent open_word_url
+	var li_obj = this.parentElement
+		, word = li_obj.getAttribute('data-word')
+
+	storage.indexedDB.removeWord(word, function ( event ) {
+		document.querySelector('ul').removeChild(li_obj)
+	})
+}
+
+function _format_date_string ( date ) {
+	// 03:32, July 8
+	
+	var MONTHS = {0:'Jan', 1:'Feb', 2:'Mar', 3:'Apr', 4:'May', 5:'Jun', 6:'Jul', 7:'Aug', 8:'Sept', 9:'Oct', 10:'Nov', 11:'Dec'}
+		, h = date.getHours()
+		, m = date.getMinutes()
+		, m = (m < 10)?('0'+m):m
+		, M = MONTHS[date.getMonth()]
+		, d = date.getDate()
+		, d = (d < 10)?('0'+d):d
+
+	return '' + M + ' ' + d + ', '+h+':'+m
+}
+
+function create_list ( orderby ) {
+
+	// by default, sort by last access
+	var orderby = orderby || "last_access"
+		, body = document.body
+
+	// (RE)create list object (ul#words)
+	var ul = document.querySelector('ul#words')
+	if (ul)
+		body.removeChild(ul)
+	var ul = document.createElement("ul")
+	ul.id = "words"
+
+
+	body.insertBefore(ul, document.querySelector('#orderby').nextSibling)
+
+	// update UI orderby selection button
+	var selected = document.querySelector("#orderby button.selected")
+	if (selected)
+		selected.classList.remove('selected')
+	document.querySelector("#orderby button[data-select="+orderby+"]")
+		.classList.add('selected')
+
+	// callback function to create list item
+	var parse_row = function ( entry ) {
+		
+		var li = document.createElement('li')
+		li.setAttribute("data-word", entry['word'])
+		li.setAttribute("data-url", entry['url'])
+		li.setAttribute('last_access', entry['last_access'])
+
+		if (entry['word'] === window.current_word)
+			li.classList.add('actual')
+
+		li.setAttribute('onClick', 'open_word_url(this)')
+
+			var a = document.createElement('span')
+			a.classList.add('field')
+			a.id = 'accesses-field'
+			a.innerHTML = entry['accesses']
+			a.title = 'number of individual accesses to ' + entry['word']
+
+			var w = document.createElement('span')
+			w.classList.add('field')
+			w.id = 'word-field'
+			w.innerHTML = entry['word']
+			w.onclick = 'open_word_url'
+
+			var t = document.createElement('time')
+			t.classList.add('field')
+			t.id = 'last-access-field'
+			t.innerHTML = _format_date_string((new Date(entry['last_access'])))
+
+			var i = document.createElement('i')
+			i.classList.add('icon-remove')
+			i.onclick = remove_word
+			
+		li.appendChild(a) // accesses field
+		li.appendChild(w) // word field
+		li.appendChild(t) // last_access field
+		li.appendChild(i) // remove icon 
+
+
+		ul.appendChild(li)
+	}
+	// retrieve data and add to ul
+	storage.indexedDB.retrieveAll(parse_row, orderby)
+}
+
+(function () {
+	
+	bg = chrome.extension.getBackgroundPage()
+	storage = bg.storage
+
+	chrome.tabs.getSelected(null, function( tab ) {
+		chrome.tabs.sendMessage(tab.id
+			, {action: 'get_word'}
+			, function ( word ) {
+				window.current_word = word
+
+				create_list() // ! create list only after word is received
+
+			})
+    })
+
+})();
+
+</script>
+</body>
+</html>

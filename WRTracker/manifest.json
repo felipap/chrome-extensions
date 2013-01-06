@@ -1,0 +1,32 @@
+{
+	"name": "Word Reference Tracker",
+	"version": "0.1",
+	"manisfest_version": 2,
+	"description": "Tracks searches on WordReference.",
+	"icons": {
+		"19": "images/sandwich-19.png",
+		"48": "images/sandwich-48.png",
+		"128": "images/sandwich-128.png"
+	},
+
+	"permissions": ["tabs", "http://*/*"],
+
+	"page_action": {
+		"default_title": "Badá!",
+		"default_icon": "images/sandwich-19.png",
+		"default_popup": "popup.html"
+	},
+
+	"content_scripts": [
+		{
+			"matches": [
+				"http://www.wordreference.com/*/*", 
+				"http://wordreference.com/*/*"],
+			"js": ["contentscript.js"]
+		}
+	],
+
+	"background": {
+		"scripts": ["background.js"]
+	}
+}

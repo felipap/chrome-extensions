@@ -1,0 +1,15 @@
+﻿
+CheckYourFollowers, by @f03lipe
+MIT License. made in 2011.
+
+uses jQuery 1.3.2
+
+chrome extension for twitter. displays a message telling you if an account
+follows you. works also when visualizing profiles on the timeline.
+
+
+!!! this extension is deprecated for now the layout has been updated and
+shows a 'FOLLOWS YOU' box when the user profile is visualized by a follower.
+
+chrome web store page:
+https://chrome.google.com/webstore/detail/hgppmhiicafodcmhllmennhildnhlebg
